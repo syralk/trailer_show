@@ -75,10 +75,10 @@ do
 					
 					if [ -f "$DIR/$FILENAME.nfo" ]; then
 
-							#Get Themoviedb ID from NFO
+							#Get IMDB ID from NFO
 							IMDBID=$(awk -F "[><]" '/imdb_id/{print $3}' "$DIR/$FILENAME.nfo" | awk -F'[ ]' '{print $1}')
 							
-							
+							#Get TMDB ID with IMDB ID 
 							JSON_IMDB=($(curl -s "https://api.themoviedb.org/3/find/$IMDBID?api_key=$API&external_source=imdb_id" |jq -r '.tv_results[] | .id'))
 							TMDBID="${JSON_IMDB[0]}"
 							
