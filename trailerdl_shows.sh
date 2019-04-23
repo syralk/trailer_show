@@ -21,8 +21,9 @@ LOGPATH="/sharedfolders/share"
 #Functions
 downloadTrailer(){
         
-	DL=$(youtube-dl   -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio' --merge-output-format mp4 "https://www.youtube.com/watch?v=$ID" -o "$DIR/trailers/$FILENAME-trailer.%(ext)s" --restrict-filenames)
-
+		VFILE=$(basename "$DIR")
+		DL=$(youtube-dl   -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio' --merge-output-format mp4 "https://www.youtube.com/watch?v=$ID" -o "$DIR/trailers/$VFILE-trailer.%(ext)s" --restrict-filenames)
+	
 		log "$DL"
 
         if [ -z "$(echo "$DL" | grep "100.0%")" ]; then
@@ -34,7 +35,7 @@ downloadTrailer(){
                 missing ""
         else
                 #Update file modification date
-                touch "$DIR/trailers/$FILENAME-trailer.mp4"
+                touch "$DIR/trailers/$VFILE-trailer.mp4"
         fi
 }
 
