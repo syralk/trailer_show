@@ -80,7 +80,7 @@ do
 							TVDBID=$(awk -F "[><]" '/tvdbid/{print $3}' "$DIR/$FILENAME.nfo" | awk -F'[ ]' '{print $1}')
 							
 							
-							JSON_IMDB=($(curl $PROXY -s "https://api.themoviedb.org/3/find/$TVDBID?api_key=$API&external_source=tvdb_id" | jq -r '.tv_results[] | .id'))
+							JSON_IMDB=($(curl -s "https://api.themoviedb.org/3/find/$TVDBID?api_key=$API&external_source=tvdb_id" | jq -r '.tv_results[] | .id'))
 							TMDBID="${JSON_IMDB[0]}"
 							
 						
