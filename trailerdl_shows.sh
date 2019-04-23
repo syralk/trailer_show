@@ -11,7 +11,7 @@ PATHS=( "/sharedfolders/share/filme" "path2" "path3")
 API=
 
 #Language Code
-LANGUAGE=de
+LANGUAGE=en
 
 #Custom path to store the log files. Uncomment this line and change the path. By default the working directory is going to be used.
 LOGPATH="/sharedfolders/share"
@@ -20,8 +20,9 @@ LOGPATH="/sharedfolders/share"
 
 #Functions
 downloadTrailer(){
-        #DL=$(youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"  "https://www.youtube.com/watch?v=$ID" -o "$DIR/trailers/$FILENAME-trailer.%(ext)s" --restrict-filenames)
-        DL=$(youtube-dl -f mp4 "https://www.youtube.com/watch?v=$ID" -o "$DIR/trailers/$FILENAME-trailer.%(ext)s" --restrict-filenames)
+        
+	DL=$(youtube-dl   -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio' --merge-output-format mp4 "https://www.youtube.com/watch?v=$ID" -o "$DIR/trailers/$FILENAME-trailer.%(ext)s" --restrict-filenames)
+
 		log "$DL"
 
         if [ -z "$(echo "$DL" | grep "100.0%")" ]; then
@@ -75,16 +76,18 @@ do
 					
 					if [ -f "$DIR/$FILENAME.nfo" ]; then
 
-							#Get IMDB ID from NFO
-							IMDBID=$(awk -F "[><]" '/imdb_id/{print $3}' "$DIR/$FILENAME.nfo" | awk -F'[ ]' '{print $1}')
+							#Get Themoviedb ID from NFO
+							TVDBID=$(awk -F "[><]" '/tvdbid/{print $3}' "$DIR/$FILENAME.nfo" | awk -F'[ ]' '{print $1}')
 							
-							#Get TMDB ID with IMDB ID 
-							JSON_IMDB=($(curl -s "https://api.themoviedb.org/3/find/$IMDBID?api_key=$API&external_source=imdb_id" |jq -r '.tv_results[] | .id'))
+							
+							JSON_IMDB=($(curl $PROXY -s "https://api.themoviedb.org/3/find/$TVDBID?api_key=$API&external_source=tvdb_id" | jq -r '.tv_results[] | .id'))
 							TMDBID="${JSON_IMDB[0]}"
 							
 						
 							log ""
 							log "tv Path: $DIR"
+							log "TVDB: $TVDBID"
+							log "TMDB: $TMDBID"
 							log "Processing file: $FILENAME.nfo"
 
 							if ! [ -z "$TMDBID" ]; then
@@ -92,7 +95,7 @@ do
 									log "Themoviedb: https://www.themoviedb.org/tv/$TMDBID"
 
 									#Get trailer YouTube ID from themoviedb.org
-									JSON=($(curl -s "http://api.themoviedb.org/3/tv/$TMDBID/videos?api_key=$API&language=$LANGUAGE" | jq -r '.results[] | select(.type=="Trailer") | .key'))
+									JSON=($(curl  -s "http://api.themoviedb.org/3/tv/$TMDBID/videos?api_key=$API" | jq -r '.results[] | select(.type=="Trailer") | .key'))
 									ID="${JSON[0]}"
 
 									if ! [ -z "$ID" ]; then
